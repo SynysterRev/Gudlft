@@ -18,4 +18,5 @@ def fake_data(mocker):
          'numberOfPlaces': '25'}]
     mocker.patch('server.clubs', clubs)
     mocker.patch('server.competitions', competitions)
+    mocker.patch('server.update_clubs', return_value=None)
     return clubs, competitions

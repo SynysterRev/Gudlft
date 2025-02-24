@@ -1,89 +1,87 @@
-def test_should_validate_credentials(client):
-    response = client.post('/showSummary', data={'email': 'john@simplylift.co'})
-    assert response.status_code == 200
-    assert "Welcome, john@simplylift.co" in response.data.decode()
+from server import (find_competition_by_name, find_club_by_name, find_club_by_email,
+                    validate_places, enough_places, enough_points, book_places)
 
 
-def test_should_not_validate_credentials(client):
-    response = client.post('/showSummary', data={'email': 'john@ift.co'})
-    assert response.status_code == 200
-    assert "This email is not registered" in response.data.decode()
+def test_find_competition_by_name():
+    competition = find_competition_by_name("Spring Festival")
+    assert competition is not None
 
 
-def test_index_page(client):
-    response = client.get('/')
-    assert response.status_code == 200
+def test_find_competition_by_name_wrong():
+    competition = find_competition_by_name("Spring Feval")
+    assert competition is None
 
 
-def test_index_page(client):
-    response = client.get('/')
-    assert response.status_code == 200
+def test_find_club_by_name():
+    club = find_club_by_name("Simply Lift")
+    assert club is not None
 
 
-def test_should_purchase_places(client, fake_data):
-    clubs, competitions = fake_data
-    club = clubs[0]
-    competition = competitions[0]
-    number_places = int(competitions[0]['numberOfPlaces'])
-    response = client.post('/purchasePlaces', data={'club': club['name'],
-                                                    'competition': competition['name'],
-                                                    'places': 2})
-    assert response.status_code == 200
-    data = response.data.decode()
-    assert 'Great-booking complete!' in data
-    assert competition['numberOfPlaces'] == number_places - 2
+def test_find_club_by_name_wrong():
+    club = find_club_by_name("Simply t")
+    assert club is None
 
 
-def test_should_not_purchase_too_many_places(client, fake_data):
-    clubs, competitions = fake_data
-    club = clubs[0]
-    competition = competitions[0]
-    response = client.post('/purchasePlaces', data={'club': club['name'],
-                                                    'competition': competition[
-                                                        'name'], 'places': 15})
-    assert response.status_code == 200
-    data = response.data.decode()
-    assert f"Place must be between 0 and 12" in data
+def test_find_club_by_email():
+    club = find_club_by_email("john@simplylift.co")
+    assert club is not None
 
 
-def test_should_not_purchase_more_places_than_left(client, fake_data):
-    clubs, competitions = fake_data
-    club = clubs[0]
-    competition = competitions[0]
-    competition['numberOfPlaces'] = 2
-    number_places = int(competitions[0]['numberOfPlaces'])
-    response = client.post('/purchasePlaces', data={'club': club['name'],
-                                                    'competition': competition[
-                                                        'name'], 'places': 5})
-    assert response.status_code == 200
-    data = response.data.decode()
-    assert "There is only {} places available".format(number_places) in data
+def test_find_club_by_email_wrong():
+    club = find_club_by_email("john@simplylift")
+    assert club is None
 
 
-def test_should_not_purchase_place_incorrect_club(client, fake_data):
+def test_validate_places():
+    assert validate_places(0)
+    assert validate_places(12)
+    assert validate_places(5)
+
+
+def test_validate_places_wrong():
+    assert not validate_places(-2)
+    assert not validate_places(15)
+
+
+def test_enough_places(fake_data):
     _, competitions = fake_data
-    club = {'name': 'test', 'email': 'test@test.com', 'points': '5'}
     competition = competitions[0]
-    competition['numberOfPlaces'] = 2
-    response = client.post('/purchasePlaces', data={'club': club['name'],
-                                                    'competition': competition[
-                                                        'name'], 'places': 5})
-    assert response.status_code == 200
-    data = response.data.decode()
-    assert "This club is not registered" in data
+    assert enough_places(competition, 5)
+    assert enough_places(competition, 0)
 
 
-def test_should_not_purchase_place_incorrect_competition(client, fake_data):
+def test_enough_places_wrong(fake_data):
+    _, competitions = fake_data
+    competition = competitions[0]
+    assert not enough_places(competition, 36)
+
+
+def test_enough_points(fake_data):
     clubs, _ = fake_data
     club = clubs[0]
-    competition = {
-        "name": "Test",
-        "date": "2020-03-27 10:00:00",
-        "numberOfPlaces": "25"
-    }
-    response = client.post('/purchasePlaces', data={'club': club['name'],
-                                                    'competition': competition[
-                                                        'name'], 'places': 5})
-    assert response.status_code == 200
-    data = response.data.decode()
-    assert "This competition is not registered" in data
+    assert enough_points(club, 5)
+    assert enough_points(club, 0)
+
+
+def test_enough_points_wrong(fake_data):
+    clubs, _ = fake_data
+    club = clubs[0]
+    assert not enough_points(club, 36)
+
+
+def test_book_places(fake_data):
+    clubs, competitions = fake_data
+    club = clubs[0]
+    competition = competitions[0]
+    book_places(club, competition, 4)
+    assert club['points'] == '16'
+    assert competition['numberOfPlaces'] == '21'
+
+
+def test_book_places_wrong(fake_data):
+    clubs, competitions = fake_data
+    club = clubs[0]
+    competition = competitions[0]
+    book_places(club, competition, 4)
+    assert not club['points'] == '20'
+    assert not competition['numberOfPlaces'] == '25'
