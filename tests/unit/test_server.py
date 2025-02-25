@@ -1,5 +1,7 @@
+from datetime import datetime, timedelta
+
 from server import (find_competition_by_name, find_club_by_name, find_club_by_email,
-                    validate_places, enough_places, enough_points, book_places)
+                    validate_places, enough_places, enough_points, book_places, is_past)
 
 
 def test_find_competition_by_name():
@@ -85,3 +87,12 @@ def test_book_places_wrong(fake_data):
     book_places(club, competition, 4)
     assert not club['points'] == '20'
     assert not competition['numberOfPlaces'] == '25'
+
+
+def test_is_past():
+    assert is_past('2020-03-27 10:00:00')
+
+
+def test_is_past_wrong():
+    tomorrow = datetime.today() + timedelta(days=1)
+    assert not is_past(tomorrow.strftime("%Y-%m-%d %H:%M:%S"))
