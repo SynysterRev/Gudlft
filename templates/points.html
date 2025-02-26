@@ -1,0 +1,27 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clubs points</title>
+</head>
+<style>
+    table, th, td {
+        border: 1px solid black;
+    }
+</style>
+<body>
+<table style="width: 500px">
+    <tr>
+        <th>Club</th>
+        <th>Points</th>
+    </tr>
+    {% for club in clubs %}
+        <tr>
+            <td>{{ club['name'] }}</td>
+            <td>{{ club['points'] }}</td>
+        </tr>
+    {% endfor %}
+</table><br/><br/>
+<a href="{{ url_for("show_summary") if session['club'] else url_for("index") }}">Back</a>
+</body>
+</html>

@@ -12,6 +12,7 @@ Please enter your secretary email to continue:
     <input type="email" name="email" id="email"/>
     <button type="submit">Enter</button>
 </form>
+<a href="{{ url_for('see_points') }}">See clubs points</a>
 {% with messages = get_flashed_messages() %}
     {% if messages %}
         <ul>

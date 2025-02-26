@@ -189,3 +189,16 @@ def test_should_not_be_able_to_book(client, fake_data):
     assert response.status_code == 200
     data = response.data.decode()
     assert "Welcome, {}".format(club['email']) in data
+
+
+def test_should_display_points(client, fake_data):
+    clubs, _ = fake_data
+    clubs.append({'name': 'Simply Lifty', 'email': 'john@simplylift.coo', 'points':
+        '15'})
+    response = client.get('/points', data={'clubs':clubs})
+    assert response.status_code == 200
+    data = response.data.decode()
+    assert "<td>Simply Lift</td>" in data
+    assert "<td>20</td>" in data
+    assert "<td>Simply Lifty</td>" in data
+    assert "<td>15</td>" in data

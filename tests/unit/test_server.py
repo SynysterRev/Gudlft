@@ -1,7 +1,11 @@
+import json
 from datetime import datetime, timedelta
 
+import pytest
+
 from server import (find_competition_by_name, find_club_by_name, find_club_by_email,
-                    validate_places, enough_places, enough_points, book_places, is_past)
+                    validate_places, enough_places, enough_points, book_places,
+                    is_past, load_clubs, load_competitions, update_clubs)
 
 
 def test_find_competition_by_name():
@@ -96,3 +100,76 @@ def test_is_past():
 def test_is_past_wrong():
     tomorrow = datetime.today() + timedelta(days=1)
     assert not is_past(tomorrow.strftime("%Y-%m-%d %H:%M:%S"))
+
+
+def test_loading_clubs(tmp_path):
+    club_data = {
+        "clubs": [
+            {
+                "name": "Simply Lift",
+                "email": "john@simplylift.co",
+                "points": "13"
+            }
+        ]
+    }
+    file = tmp_path / "clubs.json"
+    file.write_text(json.dumps(club_data))
+    assert load_clubs(file) == club_data['clubs']
+
+
+def test_loading_clubs_wrong_path(tmp_path):
+    with pytest.raises(FileNotFoundError):
+        load_clubs(tmp_path / "wrong.json")
+
+
+def test_loading_clubs_invalid_json(tmp_path):
+    file = tmp_path / "clubs.json"
+    file.write_text("{invalid}")
+    with pytest.raises(json.JSONDecodeError):
+        load_clubs(file)
+
+
+def test_loading_competitions(tmp_path):
+    competition_data = {
+        "competitions": [
+            {
+                "name": "Spring Festival",
+                "date": "2020-03-27 10:00:00",
+                "numberOfPlaces": "25"
+            }
+        ]
+    }
+    file = tmp_path / "competitions.json"
+    file.write_text(json.dumps(competition_data))
+    assert load_competitions(file) == competition_data[
+        'competitions']
+
+
+def test_loading_competitions_wrong_path(tmp_path):
+    with pytest.raises(FileNotFoundError):
+        load_competitions(tmp_path / "wrong.json")
+
+
+def test_loading_competitions_invalid_json(tmp_path):
+    file = tmp_path / "competitions.json"
+    file.write_text("{invalid}")
+    with pytest.raises(json.JSONDecodeError):
+        load_competitions(file)
+
+
+def test_update_clubs(tmp_path, mocker):
+    club_data = {
+        "clubs": [
+            {
+                "name": "Simply Lift",
+                "email": "john@simplylift.co",
+                "points": "13"
+            }
+        ]
+    }
+    mocker.patch('server.clubs', club_data['clubs'])
+    file = tmp_path / "clubs.json"
+    file.write_text(json.dumps(club_data))
+    club_data['clubs'][0]['points'] = '16'
+    update_clubs(file)
+    assert load_clubs(file) == club_data['clubs']

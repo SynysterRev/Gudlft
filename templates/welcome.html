@@ -14,8 +14,9 @@
                 <li>{{ message }}</li>
             {% endfor %}
         </ul>
-    {% endif %}
-    Points available: {{ session['club']['points'] }}
+    {% endif %}<br/><br/>
+    Points available: {{ session['club']['points'] }}<br/><br/>
+    <a href="{{ url_for('see_points') }}">See clubs points</a>
     <h3>Competitions:</h3>
     <ul>
         {% for comp in competitions %}

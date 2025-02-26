@@ -1,23 +1,37 @@
 import json
+import logging
 from datetime import datetime
 
 from flask import Flask, render_template, request, redirect, flash, url_for, session
 
 
-def load_clubs():
-    with open('clubs.json') as c:
-        list_of_clubs = json.load(c)['clubs']
-        return list_of_clubs
+def load_clubs(path='clubs.json'):
+    try:
+        with open(path) as c:
+            list_of_clubs = json.load(c).get('clubs', [])
+            return list_of_clubs
+    except FileNotFoundError:
+        raise FileNotFoundError(f"{path} not found for clubs")
+    except json.JSONDecodeError:
+        logging.error(f"Invalid json {path}")
+        raise
 
 
-def load_competitions():
-    with open('competitions.json') as comps:
-        list_of_competitions = json.load(comps)['competitions']
-        return list_of_competitions
+
+def load_competitions(path='competitions.json'):
+    try:
+        with open(path) as comps:
+            list_of_competitions = json.load(comps).get('competitions', [])
+            return list_of_competitions
+    except FileNotFoundError:
+        raise FileNotFoundError(f"{path} not found for competitions")
+    except json.JSONDecodeError:
+        logging.error(f"Invalid json {path}")
+        raise
 
 
-def update_clubs():
-    with open('clubs.json', 'w') as c:
+def update_clubs(path='clubs.json'):
+    with open(path, 'w') as c:
         final = {"clubs": clubs}
         json.dump(final, c, indent=4)
 
@@ -142,7 +156,9 @@ def purchase_places():
     return redirect(url_for('show_summary'))
 
 
-# TODO: Add route for points display
+@app.route('/points', methods=['GET'])
+def see_points():
+    return render_template('points.html', clubs=clubs)
 
 
 @app.route('/logout')
