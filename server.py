@@ -36,6 +36,12 @@ def update_clubs(path='clubs.json'):
         json.dump(final, c, indent=4)
 
 
+def update_competitions(path='competitions.json'):
+    with open(path, 'w') as c:
+        final = {"competitions": competitions}
+        json.dump(final, c, indent=4)
+
+
 def find_competition_by_name(name):
     return next((c for c in competitions if c['name'] == name), None)
 
@@ -63,6 +69,7 @@ def enough_points(club, places_required):
 def book_places(club, competition, places_required):
     competition['numberOfPlaces'] = str(
         int(competition['numberOfPlaces']) - places_required)
+    update_competitions()
     club['points'] = str(int(club['points']) - places_required)
     club_data = find_club_by_name(club['name'])
     if club_data:

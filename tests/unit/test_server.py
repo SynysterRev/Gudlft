@@ -5,7 +5,8 @@ import pytest
 
 from server import (find_competition_by_name, find_club_by_name, find_club_by_email,
                     validate_places, enough_places, enough_points, book_places,
-                    is_past, load_clubs, load_competitions, update_clubs)
+                    is_past, load_clubs, load_competitions, update_clubs,
+                    update_competitions)
 
 
 def test_find_competition_by_name():
@@ -173,3 +174,21 @@ def test_update_clubs(tmp_path, mocker):
     club_data['clubs'][0]['points'] = '16'
     update_clubs(file)
     assert load_clubs(file) == club_data['clubs']
+
+
+def test_update_competitions(tmp_path, mocker):
+    competition_data = {
+        "competitions": [
+            {
+                "name": "Spring Festival",
+                "date": "2020-03-27 10:00:00",
+                "numberOfPlaces": "25"
+            }
+        ]
+    }
+    mocker.patch('server.competitions', competition_data['competitions'])
+    file = tmp_path / "competitions.json"
+    file.write_text(json.dumps(competition_data))
+    competition_data['competitions'][0]['numberOfPlaces'] = '16'
+    update_competitions(file)
+    assert load_competitions(file) == competition_data['competitions']
