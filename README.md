@@ -20,10 +20,14 @@ This is a proof of concept (POC) project to show a light-weight version of our c
 
 You can run tests using **pytest**. Open a terminal, navigate to the root of the repository and run ```pytest``` or ```pytest -v``` for more detailed output.  
 To check test coverage ```pytest --cov=.``` or ```pytest --cov=. --cov-report html``` to generate html report.  
+
+
 ![Coverage Report](assets/coverage.png)
 
 # Performance
 
 You can test performance using **Locust**. Open a terminal, navigate to the root of the repository and run ```locust```.  
+
+
 ![Coverage Report](assets/performance.png)
 
