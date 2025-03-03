@@ -6,6 +6,8 @@ from datetime import datetime, timedelta
 import pytest
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.firefox.options import Options
+
 from server import app
 
 @pytest.fixture(scope='function', autouse=True)
@@ -61,7 +63,9 @@ class TestFunctional:
 
         time.sleep(1)
 
-        cls.browser = webdriver.Firefox()
+        webdriver_options = Options()
+        webdriver_options.add_argument("--headless")
+        cls.browser = webdriver.Firefox(options=webdriver_options)
         cls.base_url = f"http://localhost:{app.config['LIVESERVER_PORT']}"
 
     @classmethod
