@@ -14,7 +14,7 @@ Places available: {{ competition['numberOfPlaces'] }}
     <input type="number" name="places" id="places" min="0"
            max="{{ (competition['numberOfPlaces']|int) if
            (competition['numberOfPlaces']|int) < 12 else 12 }}"/>
-    <button type="submit">Book</button>
+    <button id="submit-places" type="submit">Book</button>
     {% with messages = get_flashed_messages() %}
         {% if messages %}
             <ul>
