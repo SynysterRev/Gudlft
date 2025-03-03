@@ -3,10 +3,20 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from server import (find_competition_by_name, find_club_by_name, find_club_by_email,
-                    validate_places, enough_places, enough_points, book_places,
-                    is_past, load_clubs, load_competitions, update_clubs,
-                    update_competitions)
+from server import (
+    find_competition_by_name,
+    find_club_by_name,
+    find_club_by_email,
+    validate_places,
+    enough_places,
+    enough_points,
+    book_places,
+    is_past,
+    load_clubs,
+    load_competitions,
+    update_clubs,
+    update_competitions,
+)
 
 
 def test_find_competition_by_name():
@@ -81,8 +91,8 @@ def test_book_places(fake_data):
     club = clubs[0]
     competition = competitions[0]
     book_places(club, competition, 4)
-    assert club['points'] == '16'
-    assert competition['numberOfPlaces'] == '21'
+    assert club["points"] == "16"
+    assert competition["numberOfPlaces"] == "21"
 
 
 def test_book_places_wrong(fake_data):
@@ -90,12 +100,12 @@ def test_book_places_wrong(fake_data):
     club = clubs[0]
     competition = competitions[0]
     book_places(club, competition, 4)
-    assert not club['points'] == '20'
-    assert not competition['numberOfPlaces'] == '25'
+    assert not club["points"] == "20"
+    assert not competition["numberOfPlaces"] == "25"
 
 
 def test_is_past():
-    assert is_past('2020-03-27 10:00:00')
+    assert is_past("2020-03-27 10:00:00")
 
 
 def test_is_past_wrong():
@@ -106,16 +116,12 @@ def test_is_past_wrong():
 def test_loading_clubs(tmp_path):
     club_data = {
         "clubs": [
-            {
-                "name": "Simply Lift",
-                "email": "john@simplylift.co",
-                "points": "13"
-            }
+            {"name": "Simply Lift", "email": "john@simplylift.co", "points": "13"}
         ]
     }
     file = tmp_path / "clubs.json"
     file.write_text(json.dumps(club_data))
-    assert load_clubs(file) == club_data['clubs']
+    assert load_clubs(file) == club_data["clubs"]
 
 
 def test_loading_clubs_wrong_path(tmp_path):
@@ -136,14 +142,13 @@ def test_loading_competitions(tmp_path):
             {
                 "name": "Spring Festival",
                 "date": "2020-03-27 10:00:00",
-                "numberOfPlaces": "25"
+                "numberOfPlaces": "25",
             }
         ]
     }
     file = tmp_path / "competitions.json"
     file.write_text(json.dumps(competition_data))
-    assert load_competitions(file) == competition_data[
-        'competitions']
+    assert load_competitions(file) == competition_data["competitions"]
 
 
 def test_loading_competitions_wrong_path(tmp_path):
@@ -161,19 +166,15 @@ def test_loading_competitions_invalid_json(tmp_path):
 def test_update_clubs(tmp_path, mocker):
     club_data = {
         "clubs": [
-            {
-                "name": "Simply Lift",
-                "email": "john@simplylift.co",
-                "points": "13"
-            }
+            {"name": "Simply Lift", "email": "john@simplylift.co", "points": "13"}
         ]
     }
-    mocker.patch('server.clubs', club_data['clubs'])
+    mocker.patch("server.clubs", club_data["clubs"])
     file = tmp_path / "clubs.json"
     file.write_text(json.dumps(club_data))
-    club_data['clubs'][0]['points'] = '16'
+    club_data["clubs"][0]["points"] = "16"
     update_clubs(file)
-    assert load_clubs(file) == club_data['clubs']
+    assert load_clubs(file) == club_data["clubs"]
 
 
 def test_update_competitions(tmp_path, mocker):
@@ -182,13 +183,13 @@ def test_update_competitions(tmp_path, mocker):
             {
                 "name": "Spring Festival",
                 "date": "2020-03-27 10:00:00",
-                "numberOfPlaces": "25"
+                "numberOfPlaces": "25",
             }
         ]
     }
-    mocker.patch('server.competitions', competition_data['competitions'])
+    mocker.patch("server.competitions", competition_data["competitions"])
     file = tmp_path / "competitions.json"
     file.write_text(json.dumps(competition_data))
-    competition_data['competitions'][0]['numberOfPlaces'] = '16'
+    competition_data["competitions"][0]["numberOfPlaces"] = "16"
     update_competitions(file)
-    assert load_competitions(file) == competition_data['competitions']
+    assert load_competitions(file) == competition_data["competitions"]

@@ -67,7 +67,7 @@ def enough_points(club, places_required):
 
 def book_places(club, competition, places_required):
     """Update clubs and competitions JSON and current loaded data"""
-
+	
     competition["numberOfPlaces"] = str(
         int(competition["numberOfPlaces"]) - places_required
     )
