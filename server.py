@@ -53,6 +53,11 @@ def find_club_by_email(email):
     return next((c for c in clubs if c["email"] == email), None)
 
 
+def find_competition_in_club_booking(competition_name, club):
+    return next((booking for booking in club["bookings"] if competition_name in
+                 booking), None)
+
+
 def validate_places(places_required):
     return 0 <= places_required <= 12
 
@@ -65,17 +70,36 @@ def enough_points(club, places_required):
     return int(club["points"]) >= places_required
 
 
+def too_much_athlete(club, competition, places_required):
+    competition_name = competition['name']
+    booking = find_competition_in_club_booking(competition_name, club)
+    if booking is None:
+        return False
+    number_athlete = booking[competition_name]
+    return number_athlete + places_required > 12
+
+
+def update_booking(club, competition_name, places_required):
+    booking = find_competition_in_club_booking(competition_name, club)
+    if booking is None:
+        club['bookings'].append({competition_name: places_required})
+        return
+    booking[competition_name] += places_required
+
+
 def book_places(club, competition, places_required):
     """Update clubs and competitions JSON and current loaded data"""
-	
+
     competition["numberOfPlaces"] = str(
         int(competition["numberOfPlaces"]) - places_required
     )
     update_competitions()
     club["points"] = str(int(club["points"]) - places_required)
+    update_booking(club, competition["name"], places_required)
     club_data = find_club_by_name(club["name"])
     if club_data:
         club_data["points"] = club["points"]
+        club_data["bookings"] = club["bookings"]
         update_clubs()
 
 
@@ -163,6 +187,15 @@ def purchase_places():
 
     if not enough_points(club, places_required):
         flash("You have only {} points available".format(points))
+        return render_template("booking.html", competition=competition)
+
+    if too_much_athlete(club, competition, places_required):
+        booking = find_competition_in_club_booking(competition["name"], club)
+        number_athlete = booking[competition["name"]]
+        flash(
+            f"You have already {number_athlete} athletes registered for this "
+            f"competition. "
+            f"You can only register {12 - number_athlete} more athletes.")
         return render_template("booking.html", competition=competition)
 
     book_places(club, competition, places_required)
