@@ -16,6 +16,8 @@ from server import (
     load_competitions,
     update_clubs,
     update_competitions,
+    too_much_athlete,
+    update_booking, find_competition_in_club_booking
 )
 
 
@@ -193,3 +195,37 @@ def test_update_competitions(tmp_path, mocker):
     competition_data["competitions"][0]["numberOfPlaces"] = "16"
     update_competitions(file)
     assert load_competitions(file) == competition_data["competitions"]
+
+
+def test_too_much_athlete(fake_data):
+    clubs, competitions = fake_data
+    club = clubs[0]
+    competition = competitions[0]
+    assert too_much_athlete(club, competition, 5) == False
+
+
+def test_too_much_athlete_wrong(fake_data):
+    clubs, competitions = fake_data
+    club = clubs[0]
+    competition = competitions[0]
+    club["bookings"].append({competition['name'] : 12})
+    assert too_much_athlete(club, competition, 5) == True
+
+
+def test_update_booking(fake_data):
+    clubs, competitions = fake_data
+    club = clubs[0]
+    competition = competitions[0]
+    update_booking(club, competition['name'], 5)
+    booking = find_competition_in_club_booking(competition['name'], club)
+    assert booking[competition['name']] == 5
+
+
+def test_update_booking_already_exists(fake_data):
+    clubs, competitions = fake_data
+    club = clubs[0]
+    competition = competitions[0]
+    club["bookings"].append({competition['name']: 5})
+    update_booking(club, competition['name'], 5)
+    booking = find_competition_in_club_booking(competition['name'], club)
+    assert booking[competition['name']] == 10

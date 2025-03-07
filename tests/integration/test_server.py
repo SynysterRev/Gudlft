@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 from flask import url_for
 
-from server import app
+from server import app, find_competition_in_club_booking
 
 
 def test_should_validate_credentials(client):
@@ -152,6 +152,9 @@ def test_should_update_points(client, fake_data):
     data = response.data.decode()
     assert "Great-booking complete!" in data
     assert club["points"] == str(number_points - 2)
+    booking = find_competition_in_club_booking(competition['name'], club)
+    assert booking is not None
+    assert booking[competition['name']] == 2
 
 
 def test_should_not_update_points_not_enough(client, fake_data):
@@ -193,6 +196,29 @@ def test_should_be_able_to_book(client, fake_data):
     assert response.status_code == 200
     data = response.data.decode()
     assert "Places available: {}".format(competition["numberOfPlaces"]) in data
+
+
+def test_should_not_be_able_to_book_athlete(client, fake_data):
+    clubs, competitions = fake_data
+    club = clubs[0]
+    tomorrow = datetime.today() + timedelta(days=1)
+    competition = competitions[0]
+    competition["date"] = tomorrow.strftime("%Y-%m-%d %H:%M:%S")
+    club["bookings"].append({competition['name']: 12})
+
+    with client.session_transaction() as session:
+        session["club"] = club
+
+    response = client.post(
+        "/purchasePlaces",
+        data={"competition": competition["name"], "places": 2},
+        follow_redirects=True,
+    )
+
+    assert response.status_code == 200
+    data = response.data.decode()
+    assert ("You have already 12 athletes registered for this "
+            "competition") in data
 
 
 def test_should_not_be_able_to_book(client, fake_data):

@@ -12,7 +12,8 @@ def client():
 
 @pytest.fixture
 def fake_data(mocker):
-    clubs = [{"name": "Simply Lift", "email": "john@simplylift.co", "points": "20"}]
+    clubs = [{"name": "Simply Lift", "email": "john@simplylift.co", "points": "20",
+              "bookings" : []}]
     competitions = [
         {
             "name": "Spring Festival",

@@ -31,12 +31,14 @@ def set_data(mocker):
         {
             "name": "Test Club",
             "email": "john@simplylift.co",
-            "points": "10"
+            "points": "10",
+            "bookings" : []
         },
         {
             "name": "Iron Temple",
             "email": "admin@irontemple.com",
-            "points": "15"
+            "points": "15",
+            "bookings": []
         }
     ]
 
